@@ -26,8 +26,8 @@ namespace Services
         public List<Team> Get() =>
             teams.Find(x => true).ToList();
 
-        public Team Get(string name) =>
-            teams.Find(x => x.TeamName == name).FirstOrDefault();
+        public Team Get(string id) =>
+            teams.Find(x => x.Id == id).FirstOrDefault();
 
         public Team Create(Team team)
         {
@@ -38,7 +38,7 @@ namespace Services
 
         private void Update(Team team)
         {
-            teams.ReplaceOne(teamDb => teamDb.TeamName == team.TeamName, team);
+            teams.ReplaceOne(teamDb => teamDb.Id == team.Id, team);
             SendNotificationToHub(MethodName.update, team);
         }
 
@@ -46,39 +46,40 @@ namespace Services
             Remove(team.TeamName);
 
 
-        public void Remove(string teamName)
+        public void Remove(string id)
         {
-            var team = Get(teamName);
-            teams.DeleteOne(teamDb => teamDb.TeamName == teamName);
+            var team = Get(id);
+            teams.DeleteOne(teamDb => teamDb.Id == id);
             SendNotificationToHub(MethodName.delete, team);
         }
 
         private async void SendNotificationToHub(MethodName methodName, Team team)
         {
-            await hubContext.Clients.All.SendAsync(nameof(methodName), team);
+            var name = Enum.GetName<MethodName>(methodName);
+            await hubContext.Clients.All.SendAsync(name, team);
         }
 
-        public Team AssignWin(string teamName)
+        public Team AssignWin(string id)
         {
-            var team = Get(teamName);
+            var team = Get(id);
             team.Wins += 1;
             team.UpdateScore();
             Update(team);
             return team;
         }
 
-        public Team AssignTie(string teamName)
+        public Team AssignTie(string id)
         {
-            var team = Get(teamName);
+            var team = Get(id);
             team.Ties += 1;
             team.UpdateScore();
             Update(team);
             return team;
         }
 
-        public Team AssignLoss(string teamName)
+        public Team AssignLoss(string id)
         {
-            var team = Get(teamName);
+            var team = Get(id);
             team.Losses += 1;
             team.UpdateScore();
             Update(team);

@@ -27,28 +27,35 @@ namespace backend.Controller
         [HttpPost]
         public ActionResult<Team> Create(Team team)
         {
-            teamService.Create(team);
-            return Created(team.TeamName, team);
+            try
+            {
+                teamService.Create(team);
+                return Created(team.Id, team);
+            }
+            catch (System.Exception)
+            {
+                return BadRequest(team);
+            }
         }
 
-        [HttpGet("win/{teamName}")]
-        public ActionResult<Team> AssignWin(string teamName)
+        [HttpGet("win/{id}")]
+        public ActionResult<Team> AssignWin(string id)
         {
-            var team = teamService.AssignWin(teamName);
+            var team = teamService.AssignWin(id);
             return Ok(team);
         }
 
-        [HttpGet("loss/{teamName}")]
-        public ActionResult<Team> AssignLoss(string teamName)
+        [HttpGet("loss/{id}")]
+        public ActionResult<Team> AssignLoss(string id)
         {
-            var team = teamService.AssignLoss(teamName);
+            var team = teamService.AssignLoss(id);
             return Ok(team);
         }
 
-        [HttpGet("tie/{teamName}")]
-        public ActionResult<Team> AssignTie(string teamName)
+        [HttpGet("tie/{id}")]
+        public ActionResult<Team> AssignTie(string id)
         {
-            var team = teamService.AssignTie(teamName);
+            var team = teamService.AssignTie(id);
             return Ok(team);
         }
     }

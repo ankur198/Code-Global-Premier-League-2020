@@ -1,40 +1,57 @@
 <template>
   <div class="container">
-    <div>
-      <Logo />
-      <h1 class="title">frontend</h1>
-      <div class="links">
-        <a
-          href="https://nuxtjs.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--green"
-        >
-          Documentation
-        </a>
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--grey"
-        >
-          GitHub
-        </a>
-      </div>
-    </div>
+    <h1 class="title">Code Global Premier League</h1>
+    <AddTeam />
+    <TeamTable />
   </div>
 </template>
 
 <script>
-export default {}
+import { mapMutations } from 'vuex'
+import * as signalR from '@microsoft/signalr'
+
+const connection = new signalR.HubConnectionBuilder()
+  .withUrl('http://localhost:5000/teamhub')
+  .withAutomaticReconnect()
+  .build()
+
+export default {
+  methods: {
+    ...mapMutations({
+      add: 'team/add',
+      update: 'team/update',
+      delete: 'team/delete',
+    }),
+    async GetAllTeams() {
+      const data = await this.$axios.$get('/api/team')
+      console.log(data)
+      console.log(this.$store)
+      data.forEach(this.add)
+    },
+    async MakeSignalRConnection() {
+      connection.on('create', this.add)
+      connection.on('update', this.update)
+      connection.on('delete', this.delete)
+      connection.onclose(() => console.log('Connection Closed'))
+      await connection.start()
+      console.log(connection)
+    },
+  },
+
+  created() {
+    this.MakeSignalRConnection()
+    this.GetAllTeams()
+  },
+}
 </script>
 
 <style>
 .container {
   margin: 0 auto;
   min-height: 100vh;
+  min-width: 600px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
   text-align: center;
 }
@@ -44,9 +61,10 @@ export default {}
     'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   display: block;
   font-weight: 300;
-  font-size: 100px;
+  font-size: 400%;
   color: #35495e;
   letter-spacing: 1px;
+  padding-top: 20px;
 }
 
 .subtitle {
@@ -59,5 +77,9 @@ export default {}
 
 .links {
   padding-top: 15px;
+}
+
+span {
+  font-weight: bold;
 }
 </style>

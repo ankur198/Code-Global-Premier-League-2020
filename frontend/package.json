@@ -22,9 +22,15 @@
     }
   },
   "dependencies": {
+    "@microsoft/signalr": "^5.0.1",
+    "@nuxtjs/axios": "^5.12.3",
     "@nuxtjs/pwa": "^3.0.2",
     "core-js": "^3.6.5",
-    "nuxt": "^2.14.6"
+    "nuxt": "^2.14.6",
+    "sass": "^1.30.0",
+    "sass-loader": "^10.1.0",
+    "stylelint-scss": "^3.18.0",
+    "vue-good-table": "^2.21.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",
