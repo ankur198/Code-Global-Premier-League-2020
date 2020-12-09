@@ -10,11 +10,6 @@
 import { mapMutations } from 'vuex'
 import * as signalR from '@microsoft/signalr'
 
-const connection = new signalR.HubConnectionBuilder()
-  .withUrl('http://localhost:5000/teamhub')
-  .withAutomaticReconnect()
-  .build()
-
 export default {
   created() {
     this.MakeSignalRConnection()
@@ -31,6 +26,10 @@ export default {
       data.forEach(this.add)
     },
     async MakeSignalRConnection() {
+      const connection = new signalR.HubConnectionBuilder()
+        .withUrl(`${this.$config.baseURL}/teamhub`)
+        .withAutomaticReconnect()
+        .build()
       connection.on('create', this.add)
       connection.on('update', this.update)
       connection.on('delete', this.delete)
