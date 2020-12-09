@@ -1,6 +1,7 @@
 <template>
   <div class="table">
     <vue-good-table
+      v-show="selectedTeams.length < 2"
       :columns="columns"
       :rows="teams"
       :pagination-options="{
@@ -13,7 +14,30 @@
       :search-options="{
         enabled: true,
       }"
+      @on-row-click="onRowClick"
     />
+
+    <dir v-if="selectedTeams.length > 1" class="popup">
+      <div class="info">
+        <div>
+          {{ selectedTeams[0].team_name }}
+        </div>
+        <span>V/S</span>
+        <div>
+          {{ selectedTeams[1].team_name }}
+        </div>
+      </div>
+      <div class="actions">
+        <button @click.prevent="sendFirstTeamWon">
+          {{ selectedTeams[0].team_name }} Won
+        </button>
+        <button @click.prevent="sendTie">Tie</button>
+        <button @click.prevent="sendSecondTeamWon">
+          {{ selectedTeams[1].team_name }} Won
+        </button>
+        <button @click.prevent="resetSelectedTeams">Cancel</button>
+      </div>
+    </dir>
   </div>
 </template>
 
@@ -47,11 +71,41 @@ export default {
           type: 'number',
         },
       ],
+      selectedTeams: [],
     }
   },
   computed: {
     teams() {
       return this.$store.state.team.teams
+    },
+  },
+  methods: {
+    onRowClick(params) {
+      this.selectedTeams.push(params.row)
+    },
+    resetSelectedTeams() {
+      this.selectedTeams = []
+    },
+    async sendFirstTeamWon() {
+      const teamWon = this.selectedTeams[0]
+      const teamLost = this.selectedTeams[1]
+      await this.sendWonLost(teamWon, teamLost)
+      this.resetSelectedTeams()
+    },
+    async sendSecondTeamWon() {
+      const teamWon = this.selectedTeams[1]
+      const teamLost = this.selectedTeams[0]
+      await this.sendWonLost(teamWon, teamLost)
+      this.resetSelectedTeams()
+    },
+    async sendWonLost(teamWon, teamLost) {
+      await this.$axios.$get(`api/team/win/${teamWon.id}`)
+      await this.$axios.$get(`api/team/loss/${teamLost.id}`)
+    },
+    async sendTie() {
+      await this.$axios.$get(`api/team/tie/${this.selectedTeams[0].id}`)
+      await this.$axios.$get(`api/team/tie/${this.selectedTeams[1].id}`)
+      this.resetSelectedTeams()
     },
   },
 }
@@ -62,20 +116,6 @@ export default {
   padding: 20px;
   width: 100%;
   max-width: 1000px;
-
-  .row {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-    border: 2px solid rgb(110, 110, 110);
-
-    * {
-      padding: 10px;
-      border: 2px solid rgb(110, 110, 110);
-    }
-  }
-
-  .header {
-    font-size: 150%;
-  }
+  position: relative;
 }
 </style>
