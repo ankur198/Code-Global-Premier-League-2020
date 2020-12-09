@@ -19,11 +19,6 @@
 
 <script>
 export default {
-  computed: {
-    teams() {
-      return this.$store.state.team.teams
-    },
-  },
   data() {
     return {
       columns: [
@@ -53,6 +48,11 @@ export default {
         },
       ],
     }
+  },
+  computed: {
+    teams() {
+      return this.$store.state.team.teams
+    },
   },
 }
 </script>

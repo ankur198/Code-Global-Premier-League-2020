@@ -16,6 +16,10 @@ const connection = new signalR.HubConnectionBuilder()
   .build()
 
 export default {
+  created() {
+    this.MakeSignalRConnection()
+    this.GetAllTeams()
+  },
   methods: {
     ...mapMutations({
       add: 'team/add',
@@ -24,23 +28,14 @@ export default {
     }),
     async GetAllTeams() {
       const data = await this.$axios.$get('/api/team')
-      console.log(data)
-      console.log(this.$store)
       data.forEach(this.add)
     },
     async MakeSignalRConnection() {
       connection.on('create', this.add)
       connection.on('update', this.update)
       connection.on('delete', this.delete)
-      connection.onclose(() => console.log('Connection Closed'))
       await connection.start()
-      console.log(connection)
     },
-  },
-
-  created() {
-    this.MakeSignalRConnection()
-    this.GetAllTeams()
   },
 }
 </script>

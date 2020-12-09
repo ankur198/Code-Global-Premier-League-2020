@@ -14,6 +14,12 @@ export default {
       name: '',
     }
   },
+  methods: {
+    async addTeam() {
+      await this.$axios.$post('api/team', { team_name: this.name })
+      this.name = ''
+    },
+  },
 }
 </script>
 
